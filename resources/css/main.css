@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Distressed&display=swap');
+
+body{
+    font-family: 'Roboto Slab', serif !important;
+    background-color: #c4c4c4;
+}
+.p-dialog-mask.p-component-overlay.p-component-overlay-enter.p-dialog-top{
+    z-index: 1050 !important;
+}
+.swal2-container {
+    z-index: 9999999 !important;
+  }
+#mts{
+    font-family: 'Rubik Distressed', cursive !important;
+    color: #0f1953;
+}
+
+.sec{
+    width: 100%;
+    background: #f1f1f1;
+    padding: 12px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px #9d9d9d;
+}

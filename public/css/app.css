@@ -1,0 +1,7 @@
+.p-dialog-mask.p-component-overlay.p-component-overlay-enter.p-dialog-top{
+    z-index: 1050 !important;
+}
+
+.swal2-container {
+    z-index: 9999999 !important;
+  }
