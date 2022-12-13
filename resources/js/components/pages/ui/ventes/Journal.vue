@@ -12,7 +12,7 @@
 
     <div class="card">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison <span v-if="affich"><b> total{{journné}}</b></span></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison <span v-if="affich"><b> total: {{journné}}.00 da</b></span></h6>
             <div>
                 <button v-tooltip.top="'Actualiser'" @click="getResults('api/employee/ventes')" type="button"
                     class="btn btn-primary me-2"><i class="fa-solid fa-arrows-rotate"></i></button>
@@ -265,6 +265,8 @@ export default {
             elements.forEach(el => {
                 el.removeAttribute('class');
             });
+            this.affich = false
+            this.journné = null
             this.showFilterButton = true
             this.client_id = null
             this.payemode_id = null
