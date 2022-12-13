@@ -67,6 +67,7 @@ Route::group(['prefix' => 'employee', 'middleware' => ['assign.guard:employee','
     Route::apiResource('achats', AchatController::class);
 
     // routes ventes
+    Route::post('ventes-filter',[VenteController::class, 'filterData']);
     Route::apiResource('ventes', VenteController::class);
     
     // routes operations

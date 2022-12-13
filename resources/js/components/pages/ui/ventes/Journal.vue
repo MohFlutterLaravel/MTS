@@ -12,16 +12,16 @@
 
     <div class="card">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison <span v-if="affich"><b> total{{journné}}</b></span></h6>
             <div>
-                <button v-tooltip.top="'Actualiser'" @click="getResults('api/employee/ventes')" type="button" class="btn btn-primary me-2"><i
-                        class="fa-solid fa-arrows-rotate"></i></button>
-                <button v-tooltip.top="'Filtrer'" v-if="showFilterButton" @click="openDialogFilter" type="button" class="btn btn-dark me-2"><i
-                        class="fas fa-filter"></i></button>
+                <button v-tooltip.top="'Actualiser'" @click="getResults('api/employee/ventes')" type="button"
+                    class="btn btn-primary me-2"><i class="fa-solid fa-arrows-rotate"></i></button>
+                <button v-tooltip.top="'Filtrer'" v-if="showFilterButton" @click="openDialogFilter" type="button"
+                    class="btn btn-dark me-2"><i class="fas fa-filter"></i></button>
                 <button v-tooltip.top="'Imprimer'" v-if="showActionButtons" type="button" class="btn btn-dark me-2"><i
                         class="fas fa-print"></i></button>
-                <button v-tooltip.top="'Supprimer'" v-if="showActionButtons" type="button" class="btn btn-danger me-2" @click="deleteAchat"><i
-                        class="fas fa-trash"></i></button>
+                <button v-tooltip.top="'Supprimer'" v-if="showActionButtons" type="button" class="btn btn-danger me-2"
+                    @click="deleteAchat"><i class="fas fa-trash"></i></button>
             </div>
         </div>
         <div class="table-responsive">
@@ -95,6 +95,25 @@
         </div>
     </div>
 
+    <!-- Dialog filter open -->
+    <Dialog v-model:visible="filterDialog" :style="{ width: '750px' }" header="Filtre journal" :modal="true"
+        class="p-fluid">
+        <form @submit="filterJournal" enctype="multipart/form-data">
+            <div class="d-flex justify-content-between m-4">
+                <div>
+                    <Calendar v-model="selectedDated" :showButtonBar="true" :showIcon="true" />
+                </div>
+                <div>
+                    <Calendar v-model="selectedDatef" :showButtonBar="true" :showIcon="true" />
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <input type="submit" value="Valider" class="btn btn-dark btn-lg"
+                    style="--bs-btn-padding-y: .5rem; --bs-btn-padding-x: 1.5rem; --bs-btn-font-size: 1.25rem;">
+            </div>
+        </form>
+    </Dialog>
+    <!-- Dialog filter close -->
 </template>
 <script>
 import Dialog from 'primevue/dialog';
@@ -119,7 +138,11 @@ export default {
                 user_id: null
             },
             ventes: [],
+            filterDialog: null,
+            selectedDated: null,
+            selectedDatef: null,
             vente: null,
+            noventes: false,
             produits: [],
             produit: null,
             pagination: {},
@@ -132,9 +155,12 @@ export default {
             optionProduits: [],
             optionCaisses: [],
             optionPayemode: [],
+            journné: null,
+            affich: false,
             //buttons
             showFilterButton: true,
             showActionButtons: false,
+
         }
     },
     created() {
@@ -244,6 +270,7 @@ export default {
             this.payemode_id = null
             this.caisse_id = null
             this.ventes = []
+            this.noventes = false
             this.spinner = true
             this.showActionButtons = false
             page = page || 'api/employee/ventes'
@@ -296,6 +323,40 @@ export default {
             element.classList.add("vente");
             element.classList.add("table-dark");
             element.classList.add("font-weight-bold");
+        },
+        openDialogFilter() {
+            this.filterDialog = true
+        },
+        filterJournal(e) {
+            e.preventDefault();
+            this.spiner = true
+            var self = this
+            let token = this.$store.state.token
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            axios.post('api/employee/ventes-filter',
+                {
+                    'dated': self.selectedDated,
+                    'datef': self.selectedDatef
+                }, { headers: headers })
+                .then(res => {
+                    self.filterDialog = false
+                    console.log(res.data)
+                    self.ventes = res.data.ventes;
+                    self.journné = res.data.mantant;
+                    self.affich = true
+                    self.spinner = false
+                    self.selectedDated = null
+                    self.selectedDatef = null
+                    if (self.ventes.length == 0) {
+                        self.noventes = true
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         },
     }
 }

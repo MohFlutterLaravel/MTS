@@ -29,12 +29,32 @@ class VenteController extends Controller
         return response()->json($ventes, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function FilterData(Request $request)
+    {
+        $validatedData = $request->validate([
+            'dated' => ['required', 'date'],
+            'datef' => ['required', 'date'],
+        ]);
+        $ventes = Vente::with([
+            'products',
+            'user:id,name',
+            'caisse:id,label',
+            'client:id,name',
+            'payemode:id,mode'
+            ])
+        ->whereDate('created_at',  '>=', $request->dated)
+        ->whereDate('created_at',  '<', $request->datef)
+        ->get();
+        $mantant = 0;
+        foreach ($ventes as $vente) {
+            $mantant += $vente->mantant;
+        }
+        return response()->json([
+            'ventes' => $ventes,
+            'mantant' => $mantant,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
