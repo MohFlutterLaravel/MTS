@@ -18,6 +18,8 @@
                         class="fa-solid fa-arrows-rotate"></i></button>
                 <button v-if="showFilterButton" @click="openDialogFilter" type="button" class="btn btn-dark me-2"><i
                         class="fas fa-filter"></i></button>
+                <button v-if="showDetteButton" @click="openDialogAchat" type="button" class="btn btn-success me-2"><i
+                        class="fa-solid fa-eye"></i></button>
                 <button v-if="showDetteButton" @click="openDialogDette" type="button" class="btn btn-warning me-2"><i
                         class="fa-solid fa-money-bill-wave"></i></button>
                 <button v-if="showEditButton" type="button" class="btn btn-dark me-2" @click="editDialogSource"><i
@@ -141,6 +143,55 @@
     </Dialog>
     <!-- Dialog filter close -->
 
+    <!-- Dialog Achat open -->
+    <Dialog v-model:visible="showDialogAchat" :style="{ width: '1000px' }" header="Achats" :modal="true" class="p-fluid">
+        <div class="card">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Bon de livraisons</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-items-center table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ETAT</th>
+                            <th>N°</th>
+                            <th>PAIEMENT</th>
+                            <th>CAISSE</th>
+                            <th>Mantant</th>
+                            <th>OBSERVATION</th>
+                            <th>DATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="achat in achats">
+
+                            <td>
+                                <span :class="achat.isvalid == 1 ? 'badge bg-success' : 'badge bg-danger'">{{
+                                        achat.isvalid
+                                            == 1 ? 'VALIDE' : 'INVALIDE'
+                                }}</span>
+                            </td>
+                            <td>{{ achat.id }}</td>
+                            <td>{{ achat.payemode_id == 1 ? 'Espèse' : 'A term' }}</td>
+                            <td>{{ achat.caisse_id == 1 ? 'SURFACE' : 'REPARATION' }}</td>
+                            <td>{{ achat.mantant }}</td>
+                            <td>{{ achat.observation }}</td>
+                            <td>{{ new Date(achat.updated_at).toLocaleString('en-GB') }}</td>
+                        </tr>
+                        <tr v-if="spinner">
+                            <td colspan="9" class="text-center">
+                                <div class="p-4">
+                                    <ProgressSpinner />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </Dialog>
+    <!-- Dialog filter close -->
+
     <!-- Dialog dette open -->
     <Dialog v-model:visible="detteClientDialog" :style="{ width: '450px' }" header="Pay Dette" :modal="true"
         class="p-fluid">
@@ -161,10 +212,10 @@
             </div>
             <div class="row d-flex justify-content-center mt-4">
                 <div class="col-6">
-                        <div class="form-floating">
-                            <v-select placeholder="Caisse" v-model="caisse_id" :options="optionsCaisses"
-                                :reduce="label => label.id" label="label"></v-select>
-                        </div>
+                    <div class="form-floating">
+                        <v-select placeholder="Caisse" v-model="caisse_id" :options="optionsCaisses"
+                            :reduce="label => label.id" label="label"></v-select>
+                    </div>
                 </div>
             </div>
             <div class="form-group m-4 d-flex justify-content-end">
@@ -205,6 +256,7 @@ export default {
             observation: null,
             caisse_id: null,
             clients: [],
+            achats: [],
             client: null,
             options: [],
             optionsCaisses: [],
@@ -220,7 +272,8 @@ export default {
             filterDialog: false,
             showFilterButton: true,
             showRefreshButton: false,
-            showDetteButton: false
+            showDetteButton: false,
+            showDialogAchat: false
         }
     },
     created() {
@@ -288,6 +341,7 @@ export default {
     },
     methods: {
         showAction(client) {
+            this.achats = []
             this.showDeleteButton = true
             this.showDetteButton = true
             this.showEditButton = true
@@ -359,6 +413,25 @@ export default {
         },
         openDialogSource() {
             this.createDialog = true
+        },
+        openDialogAchat() {
+            this.showDialogAchat = true
+            this.spinner = true
+            var self = this
+            let token = this.$store.state.token
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            axios.get('api/employee/clients/'+self.client.id, {headers:headers})
+            .then(res=>{
+                let response = res.data
+                self.achats = response
+                this.spinner = false
+            })
+            .catch(err=>{
+
+            })
         },
         store(e) {
             e.preventDefault();
