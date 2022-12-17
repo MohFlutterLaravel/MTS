@@ -55,6 +55,7 @@ class VenteController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -86,9 +87,14 @@ class VenteController extends Controller
                     'qte' =>  $product['qte'],
                     'prix' =>$product['prix'],
                     'mantant' => $product['total'],
+                    'benef' => ($product['prix'] * $product['qte']) - $product['pa'] * $product['qte'],
                 ]);
+                
                 $prod = Product::find($product['id']);
-                $prod->qte -= $product['qte'];
+                
+                if ($prod->type->stock_touch) {
+                    $prod->qte -= $product['qte']; 
+                }
                 $prod->save();
                 $vente->mantant += $product['total'];
                 $vente->save();
@@ -127,9 +133,10 @@ class VenteController extends Controller
      * @param  \App\Models\Vente  $vente
      * @return \Illuminate\Http\Response
      */
-    public function show(Vente $vente)
+    public function show($id)
     {
-        //
+        $vente = Vente::find($id);
+        return response()->json([$vente->products]);
     }
 
     /**

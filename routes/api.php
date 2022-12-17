@@ -44,6 +44,7 @@ Route::group(['prefix' => 'employee', 'middleware' => ['assign.guard:employee','
     Route::apiResource('products', ProductController::class);
 
     // routes caisses 
+    Route::get('caisses-chart', [CaisseController::class, "CaissesChart"]);
     Route::post('encaisser',[CaisseController::class, 'encaisser']);
     Route::post('decaisser',[CaisseController::class, 'decaisser']);
     Route::get('caisses-filter',[CaisseController::class, 'filterData']);

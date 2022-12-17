@@ -236,7 +236,7 @@
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Korti Mohammed
+                        {{ login != '' ? login : 'errorToken' }}
                     </div>
                 </nav>
             </div>
@@ -268,10 +268,14 @@
 export default {
     data() {
         return {
+            login: '',
             showadmin: false,
         }
     },
     created() {
+        if (this.$store.state.user != '') {
+            this.login = this.$store.state.user
+        }
         this.$router.push({ name: 'home' })
     },
     methods: {

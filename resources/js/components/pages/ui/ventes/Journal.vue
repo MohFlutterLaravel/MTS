@@ -12,7 +12,9 @@
 
     <div class="card">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison <span v-if="affich"><b> total: {{journné}}.00 da</b></span></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Bon de livraison <span v-if="affich"><b> total: {{ journné
+            }}.00
+                        da</b></span></h6>
             <div>
                 <button v-tooltip.top="'Actualiser'" @click="getResults('api/employee/ventes')" type="button"
                     class="btn btn-primary me-2"><i class="fa-solid fa-arrows-rotate"></i></button>
@@ -20,8 +22,10 @@
                     class="btn btn-dark me-2"><i class="fas fa-filter"></i></button>
                 <button v-tooltip.top="'Imprimer'" v-if="showActionButtons" type="button" class="btn btn-dark me-2"><i
                         class="fas fa-print"></i></button>
+                <button v-tooltip.top="'Editer'" v-if="showActionButtons" type="button" class="btn btn-dark me-2"
+                    @click="editVente"><i class="fas fa-edit"></i></button>
                 <button v-tooltip.top="'Supprimer'" v-if="showActionButtons" type="button" class="btn btn-danger me-2"
-                    @click="deleteAchat"><i class="fas fa-trash"></i></button>
+                    @click="deleteVente"><i class="fas fa-trash"></i></button>
             </div>
         </div>
         <div class="table-responsive">
@@ -114,6 +118,64 @@
         </form>
     </Dialog>
     <!-- Dialog filter close -->
+
+    <!-- Dialog produit details open -->
+    <Dialog position="top" v-model:visible="showProduitsDialog" :style="{ width: '1000px' }" header="Ajouter Achat"
+        :modal="true" class="p-fluid">
+
+        <!--Button Action-->
+        <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-start">
+
+            </div>
+            <div class="d-flex justify-content-end">
+
+            </div>
+        </div>
+        <!--Produits-->
+        <div class="card mt-2">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Produits</h6>
+                <div v-if="showActionProduitButton">
+                    <button type="button" class="btn btn-dark me-2"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger me-2"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-items-center table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>CODEBARE</th>
+                            <th>DESIGNATION</th>
+                            <th>PV</th>
+                            <th>QTE</th>
+                            <th>Mantant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr :id="'produit' + produit.id" @click="showActionProduit(produit)" style="cursor: pointer"
+                            v-for="produit in produits">
+                            <td>{{ produit.barecode }}</td>
+                            <td>{{ produit.designation }}</td>
+                            <td>{{ produit.pivot.qte }}</td>
+                            <td>{{ produit.pivot.prix }}</td>
+                            <td>{{ produit.pivot.mantant }}</td>
+                        </tr>
+
+                        <tr v-if="spinner">
+                            <td colspan="8" class="text-center">
+                                <div class="p-4">
+                                    <ProgressSpinner />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </Dialog>
+    <!-- Dialog produit details close -->
 </template>
 <script>
 import Dialog from 'primevue/dialog';
@@ -122,6 +184,7 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 import ProgressSpinner from 'primevue/progressspinner';
 import Calendar from 'primevue/calendar';
 import Tooltip from 'primevue/tooltip';
+import axios from 'axios';
 export default {
     components: {
         Dialog,
@@ -160,6 +223,10 @@ export default {
             //buttons
             showFilterButton: true,
             showActionButtons: false,
+            showActionProduitButton: false,
+            // dialog
+            showProduitsDialog: false,
+
 
         }
     },
@@ -359,6 +426,30 @@ export default {
                 .catch(err => {
                     console.log(err);
                 })
+        },
+        editVente() {
+            var self = this
+            let token = this.$store.state.token
+            self.spinner = true
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            axios.get('api/employee/ventes/'+this.vente.id, {headers:headers})
+            .then(res=>{
+                self.produits = res.data[0]
+                this.showProduitsDialog = true
+                self.spinner = false
+            })
+            .catch(err=>{
+                Notification.error();
+                console.log(err);
+            })
+            
+        },
+        showActionProduit(produit){
+
         },
     }
 }

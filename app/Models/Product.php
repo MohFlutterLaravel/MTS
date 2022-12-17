@@ -39,6 +39,7 @@ class Product extends Model
     }
 
     function ventes(){
-        return $this->belongstoMany(Vente::class);
+        return $this->belongstoMany(Vente::class)
+        ->withPivot('product_id','vente_id','qte', 'prix', 'mantant');
     }
 }

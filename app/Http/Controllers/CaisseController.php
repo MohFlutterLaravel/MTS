@@ -102,6 +102,12 @@ class CaisseController extends Controller
         return response()->json(['success'=>true]);
     }
 
+
+    public function CaissesChart()
+    {
+        $caisses = Caisse::select(['id', 'label', 'tot_enc', 'tot_dec', 'solde'])->get();
+        return response()->json([$caisses]);
+    }
     /**
      * Display the specified resource.
      *
